@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Varausjärjestelmä</title>
+<link rel="stylesheet" href="style.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+
+</head>
+<body>
+<div id="lock-screen" class="lock-screen">
+  <div id="lock-box" class="lock-box">
+    <h2>Varauskalenteri</h2>
+    <p>Enter the password to continue</p>
+    <input type="password" id="lock-input" placeholder="Password" onkeydown="if(event.key==='Enter')unlock()">
+    <button id="lock-btn" class="lock-btn" onclick="unlock()">Unlock</button>
+    <div id="lock-error" class="lock-error">Incorrect password, try again.</div>
+  </div>
+</div>
+
+<div class="container" id="app" style="display:none;">
+  <header>
+    <h1>Varauskalenteri</h1>
+    <p>Napauta päivää kalenterissa tai syötä päivämäärät manuaalisesti alla.</p>
+  </header>
+
+  <div class="card">
+    <div class="cal-header">
+      <button class="nav-btn" onclick="changeMonth(-1)">&#8592;</button>
+      <h2 id="month-label"></h2>
+      <button class="nav-btn" onclick="changeMonth(1)">&#8594;</button>
+    </div>
+    <div class="day-labels">
+      <div class="day-label">Ma</div><div class="day-label">Ti</div><div class="day-label">Ke</div>
+      <div class="day-label">To</div><div class="day-label">Pe</div><div class="day-label">La</div><div class="day-label">Su</div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+
+  <div class="card">
+    <p class="section-title">Uusi varaus</p>
+    <div class="wrap">
+  <div class="form-row">
+    <div class="form-group">
+      <label>Alku päivä</label>
+      <div class="date-input-wrap" id="picker-wrap">
+        <input type="text" id="start-display" placeholder="Valitse ajanjakso" readonly>
+        <i class="ti ti-calendar cal-icon" aria-hidden="true"></i>
+        <div class="picker-dropdown" id="picker-dropdown">
+          <div class="picker-head">
+            <button class="picker-nav" id="prev-month">&#8592;</button>
+            <span id="picker-month-label"></span>
+            <button class="picker-nav" id="next-month">&#8594;</button>
+          </div>
+          <div class="picker-grid" id="picker-grid">
+            <div class="picker-day-label">Ma</div>
+            <div class="picker-day-label">Ti</div>
+            <div class="picker-day-label">Ke</div>
+            <div class="picker-day-label">To</div>
+            <div class="picker-day-label">Pe</div>
+            <div class="picker-day-label">La</div>
+            <div class="picker-day-label">Su</div>
+          </div>
+          <div class="picker-hint" id="picker-hint">Paina aloitus päivää</div>
+          <button class="picker-clear" id="picker-clear" onclick="clearSelection()">Clear</button>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Loppu päivä</label>
+      <div class="date-input-wrap">
+        <input type="text" id="end-display" placeholder="" readonly style="cursor:default;opacity:0.6;" id="end-input-wrap">
+        <i class="ti ti-calendar cal-icon" aria-hidden="true"></i>
+      </div>
+    </div>
+  </div>
+  <div class="form-group" style="margin-bottom:12px;">
+    <label>Varattu nimellä</label>
+    <input type="text" class="plain-input" id="booked-for" placeholder="Nimi tai kuvaus…">
+  </div>
+  <div id="form-error" class="error"></div>
+  <button class="submit-btn" onclick="submitBooking()">Lisää varaus</button>
+  <div id="result-msg" class="result-msg"></div>
+  </div>
+  </div>
+
+  <div class="card" id="bookings-card" style="display:none;">
+    <p class="section-title">Kaikki varaukset</p>
+    <div id="bookings-list"></div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
