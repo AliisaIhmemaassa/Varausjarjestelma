@@ -11,7 +11,18 @@
 
 </head>
 <body>
-<div class="container" id="app">
+<div id="lock-screen" class="lock-screen">
+  <div id="lock-box" class="lock-box">
+    <h2>Varauskalenteri</h2>
+    <p>Enter the password to continue</p>
+    <input type="email" id="lock-email" placeholder="Sähköposti">
+    <input type="password" id="lock-input" placeholder="Password" onkeydown="if(event.key==='Enter')unlock()">
+    <button id="lock-btn" class="lock-btn" onclick="unlock()">Unlock</button>
+    <div id="lock-error" class="lock-error">Incorrect password, try again.</div>
+  </div>
+</div>
+
+<div class="container" id="app" style="display:none;">
   <header>
     <h1>Varauskalenteri</h1>
     <p>Napauta päivää kalenterissa tai syötä päivämäärät manuaalisesti alla.</p>

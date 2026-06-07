@@ -1,20 +1,82 @@
 const { createClient } = supabase;
 const sb = createClient(
-  'https://tcsofrgmtpsmjrekujyu.supabase.co/rest/v1/',
+  'https://tcsofrgmtpsmjrekujyu.supabase.co',
   'sb_publishable_S1GeZ_PbIfPMQCYmYU35tg_rJ4Kusv6'
 );
 
-
-
 const MONTHS = ['Tammikuu', 'Helmikuu', 'Maaliskuu', 'Huhtikuu', 'Toukokuu', 'Kesäkuu', 'Heinäkuu', 'Elokuu', 'Syyskuu', 'Lokakuu', 'Marraskuu', 'Joulukuu'];
 let currentYear, currentMonth;
-let bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+let bookings = [];
 
+// ─── Auth ────────────────────────────────────────────────────────────────────
 
+async function unlock() {
+    const email = document.getElementById('lock-email').value.trim();
+    const password = document.getElementById('lock-input').value;
+    const errEl = document.getElementById('lock-error');
 
-function saveBookings() {
-    localStorage.setItem('bookings', JSON.stringify(bookings));
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) {
+        errEl.textContent = 'Väärä sähköposti tai salasana.';
+        errEl.style.display = 'block';
+        document.getElementById('lock-input').value = '';
+        document.getElementById('lock-input').focus();
+    } else {
+        showApp();
+    }
 }
+
+async function logout() {
+    await sb.auth.signOut();
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('lock-screen').style.display = 'flex';
+}
+
+function showApp() {
+    document.getElementById('lock-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    const now = new Date();
+    currentYear = now.getFullYear();
+    currentMonth = now.getMonth();
+    loadBookings();
+}
+
+// Check if already logged in on page load
+sb.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+        showApp();
+    }
+});
+
+// Allow Enter key on password field
+document.addEventListener('DOMContentLoaded', () => {
+    const lockInput = document.getElementById('lock-input');
+    if (lockInput) lockInput.addEventListener('keydown', e => { if (e.key === 'Enter') unlock(); });
+});
+
+// ─── Supabase data ────────────────────────────────────────────────────────────
+
+async function loadBookings() {
+    const { data, error } = await sb.from('bookings').select('*').order('start');
+    if (error) { console.error(error); return; }
+    bookings = data;
+    renderCalendar();
+    renderBookingsList();
+}
+
+async function saveBooking(start, end, name) {
+    const { data, error } = await sb.from('bookings').insert([{ start, end, name }]).select();
+    if (error) { console.error(error); return null; }
+    return data[0];
+}
+
+async function deleteBooking(id) {
+    const { error } = await sb.from('bookings').delete().eq('id', id);
+    if (error) { console.error(error); return; }
+    await loadBookings();
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function toDateStr(d) {
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -29,6 +91,18 @@ function formatDisplay(s) {
     return parseDate(s).toLocaleDateString('fi-FI', { day:'numeric', month:'short', year:'numeric' });
 }
 
+function toDisplay(s) {
+    const [y,m,d] = s.split('-').map(Number);
+    return String(d).padStart(2,'0') + '.' + String(m).padStart(2,'0') + '.' + y;
+}
+
+function displayToStr(s) {
+    const [d, m, y] = s.split('.').map(Number);
+    return y + '-' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+}
+
+function toStr(y,m,d) { return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
+
 function changeMonth(dir) {
     currentMonth += dir;
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
@@ -40,15 +114,10 @@ function getBookingForDate(dateStr) {
     return bookings.find(b => dateStr >= b.start && dateStr <= b.end);
 }
 
-function displayToStr(s) {
-  const [d, m, y] = s.split('.').map(Number);
-  return y + '-' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-}
-
+// ─── Calendar ─────────────────────────────────────────────────────────────────
 
 function renderCalendar() {
     document.getElementById('month-label').textContent = MONTHS[currentMonth] + ' ' + currentYear;
-
     const grid = document.getElementById('cal-grid');
     grid.innerHTML = '';
     const today = toDateStr(new Date());
@@ -69,10 +138,10 @@ function renderCalendar() {
         let cls = 'cal-day';
         if (dateStr === today) cls += ' today';
         if (booking) {
-        if (booking.start === booking.end) cls += ' booked-single';
-        else if (dateStr === booking.start) cls += ' booked-start';
-        else if (dateStr === booking.end) cls += ' booked-end';
-        else cls += ' booked-mid';
+            if (booking.start === booking.end) cls += ' booked-single';
+            else if (dateStr === booking.start) cls += ' booked-start';
+            else if (dateStr === booking.end) cls += ' booked-end';
+            else cls += ' booked-mid';
         }
         el.className = cls;
 
@@ -88,14 +157,14 @@ function renderCalendar() {
         }
 
         el.addEventListener('click', () => {
-        if (!booking) {
-            document.getElementById('start-display').value = toDisplay(dateStr);
-            document.getElementById('end-display').value = toDisplay(dateStr);
-            document.getElementById('booked-for').focus();
-            startVal = dateStr;
-            endVal = dateStr;
-            pickingStep = 1;
-        }
+            if (!booking) {
+                document.getElementById('start-display').value = toDisplay(dateStr);
+                document.getElementById('end-display').value = toDisplay(dateStr);
+                document.getElementById('booked-for').focus();
+                startVal = dateStr;
+                endVal = dateStr;
+                pickingStep = 1;
+            }
         });
 
         grid.appendChild(el);
@@ -109,58 +178,49 @@ function renderBookingsList() {
     card.style.display = 'block';
     const sorted = [...bookings].sort((a,b) => a.start.localeCompare(b.start));
     list.innerHTML = sorted.map(b => {
-        const idx = bookings.indexOf(b);
         const range = b.start === b.end ? formatDisplay(b.start) : formatDisplay(b.start) + ' – ' + formatDisplay(b.end);
         return `<div class="booking-item">
         <div>
             <div class="booking-name">${b.name}</div>
             <div class="booking-dates">${range}</div>
         </div>
-        <button class="delete-btn" onclick="removeBooking(${idx})" aria-label="Remove booking">&times;</button>
+        <button class="delete-btn" onclick="removeBooking(${b.id})" aria-label="Poista varaus">&times;</button>
         </div>`;
     }).join('');
 }
 
+async function removeBooking(id) {
+    await deleteBooking(id);
+}
 
+// ─── Submit ───────────────────────────────────────────────────────────────────
 
-function addBooking() {
-    const start = displayToStr(document.getElementById('start-display').value);
-    const end = displayToStr(document.getElementById('end-display').value);
+async function submitBooking() {
     const name = document.getElementById('booked-for').value.trim();
     const errEl = document.getElementById('form-error');
+    const start = startVal;
+    const end = endVal;
 
-    if (!start || !end || !name) { errEl.textContent = 'Please fill in all fields.'; errEl.style.display='block'; return; }
-    if (end < start) { errEl.textContent = 'Lopetus päivä täytyy olla aloitus päivän jälkeen.'; errEl.style.display='block'; return; }
+    if (!start || !end) { errEl.textContent = 'Valitse päivät kalenterista.'; errEl.style.display='block'; return; }
+    if (!name) { errEl.textContent = 'Kirjoita varaajan nimi.'; errEl.style.display='block'; return; }
     const conflict = bookings.find(b => !(end < b.start || start > b.end));
     if (conflict) { errEl.textContent = `Päivät ovat päällekkäisiä "${conflict.name}":n kanssa.`; errEl.style.display='block'; return; }
 
     errEl.style.display = 'none';
-    bookings.push({ start, end, name, id: Date.now() });
-    saveBookings();
-    document.getElementById('start-display').value = '';
-    document.getElementById('end-display').value = '';
-    document.getElementById('booked-for').value = '';
+
+    const saved = await saveBooking(start, end, name);
+    if (!saved) { errEl.textContent = 'Tallennus epäonnistui, yritä uudelleen.'; errEl.style.display='block'; return; }
+
+    startVal=null; endVal=null; pickingStep=0;
+    startDisplay.value=''; endDisplay.value=''; endDisplay.style.opacity='0.6';
+    document.getElementById('booked-for').value='';
+
     currentYear = parseDate(start).getFullYear();
     currentMonth = parseDate(start).getMonth();
-    renderCalendar();
-    renderBookingsList();
+    await loadBookings();
 }
 
-function removeBooking(idx) {
-    bookings.splice(idx, 1);
-    saveBookings();
-    renderCalendar();
-    renderBookingsList();
-}
-
-/**/
-const now = new Date();
-currentYear = now.getFullYear();
-currentMonth = now.getMonth();
-renderCalendar();
-renderBookingsList();
-/**/
-
+// ─── Mini picker ──────────────────────────────────────────────────────────────
 
 let pickerYear, pickerMonth;
 let startVal = null, endVal = null;
@@ -171,25 +231,15 @@ const wrap = document.getElementById('picker-wrap');
 const startDisplay = document.getElementById('start-display');
 const endDisplay = document.getElementById('end-display');
 const hint = document.getElementById('picker-hint');
-const endInput = document.getElementById('end-display');
-
-
-
-function toStr(y,m,d) { return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
-function parseStr(s) { const [y,m,d]=s.split('-').map(Number); return {y,m:m-1,d}; }
-function fmtDisplay(s) { const {y,m,d}=parseStr(s); return d+'.'+m+'.'+y; }
-function toDisplay(s) {
-  const [y,m,d] = s.split('-').map(Number);
-  return String(d).padStart(2,'0') + '.' + String(m).padStart(2,'0') + '.' + y;
-}
-
-
 
 function openPicker() {
     const now = new Date();
     pickerYear = now.getFullYear();
     pickerMonth = now.getMonth();
-    if (startVal) { const p=parseStr(startVal); pickerYear=p.y; pickerMonth=p.m; }
+    if (startVal) {
+        const [y,m] = startVal.split('-').map(Number);
+        pickerYear = y; pickerMonth = m-1;
+    }
     pickingStep = startVal ? 1 : 0;
     dropdown.classList.add('open');
     renderPicker();
@@ -198,33 +248,29 @@ function openPicker() {
 function closePicker() { dropdown.classList.remove('open'); }
 
 function clearSelection() {
-  startVal = null; endVal = null; pickingStep = 0;
-  startDisplay.value = ''; 
-  endDisplay.value = '';
-  endDisplay.style.opacity = '0.6';
-  renderPicker();
+    startVal = null; endVal = null; pickingStep = 0;
+    startDisplay.value = '';
+    endDisplay.value = '';
+    endDisplay.style.opacity = '0.6';
+    renderPicker();
 }
-
 
 startDisplay.addEventListener('click', openPicker);
 
 document.addEventListener('click', e => {
-  if (!wrap.contains(e.target)) closePicker();
+    if (!wrap.contains(e.target)) closePicker();
 });
 
 document.getElementById('prev-month').addEventListener('click', e => {
-  e.stopPropagation();
-  pickerMonth--; if (pickerMonth<0){pickerMonth=11;pickerYear--;}
-  renderPicker();
+    e.stopPropagation();
+    pickerMonth--; if (pickerMonth<0){pickerMonth=11;pickerYear--;}
+    renderPicker();
 });
 document.getElementById('next-month').addEventListener('click', e => {
-  e.stopPropagation();
-  pickerMonth++; if (pickerMonth>11){pickerMonth=0;pickerYear++;}
-  renderPicker();
+    e.stopPropagation();
+    pickerMonth++; if (pickerMonth>11){pickerMonth=0;pickerYear++;}
+    renderPicker();
 });
-
-
-
 
 function renderPicker() {
     document.getElementById('picker-month-label').textContent = MONTHS[pickerMonth]+' '+pickerYear;
@@ -275,31 +321,7 @@ function dayClick(ds) {
         renderPicker();
     }
 }
-
-function submitBooking() {
-    const name = document.getElementById('booked-for').value.trim();
-    const errEl = document.getElementById('form-error');
-    const start = startVal;
-    const end = endVal;
-
-    if (!start || !end) { errEl.textContent='Please select both dates using the calendar.'; errEl.style.display='block'; return; }
-    if (!name) { errEl.textContent='Please fill in who the booking is for.'; errEl.style.display='block'; return; }
-    const conflict = bookings.find(b => !(end < b.start || start > b.end));
-    if (conflict) { errEl.textContent = `Päivät ovat päällekkäisiä "${conflict.name}":n kanssa.`; errEl.style.display='block'; return; }
-
-    errEl.style.display='none';
-    const msg = document.getElementById('result-msg');
-    msg.textContent='✓ Booked for '+name+': '+toDisplay(start)+' – '+toDisplay(end);
-    msg.style.display='block';
-    errEl.style.display = 'none';
-    bookings.push({ start, end, name, id: Date.now() });
-    saveBookings();
-    startVal=null; endVal=null; pickingStep=0;
-    startDisplay.value=''; endDisplay.value=''; endDisplay.style.opacity='0.6';
-    document.getElementById('booked-for').value='';
-
-    currentYear = parseDate(start).getFullYear();
-    currentMonth = parseDate(start).getMonth();
-    renderCalendar();
-    renderBookingsList();
-}
+const now = new Date();
+currentYear = now.getFullYear();
+currentMonth = now.getMonth();
+renderCalendar();
