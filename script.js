@@ -1,28 +1,9 @@
-const PASSWORD = 'changeme'; // ← change this to your password
+const { createClient } = supabase;
+const sb = createClient(
+  'https://tcsofrgmtpsmjrekujyu.supabase.co/rest/v1/',
+  'sb_publishable_S1GeZ_PbIfPMQCYmYU35tg_rJ4Kusv6'
+);
 
-function unlock() {
-    const val = document.getElementById('lock-input').value;
-    if (val === PASSWORD) {
-        sessionStorage.setItem('auth', '1');
-        document.getElementById('lock-screen').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-    } else {
-        const err = document.getElementById('lock-error');
-        err.style.display = 'block';
-        document.getElementById('lock-input').value = '';
-        document.getElementById('lock-input').focus();
-    }
-}
-
-if (sessionStorage.getItem('auth') === '1') {
-    document.getElementById('lock-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-}
-
-/*const today = new Date();
-const year = today.getFullYear();
-document.getElementById('start-date').value = '/' + year;
-document.getElementById('end-date').value = '/' + year;*/
 
 
 const MONTHS = ['Tammikuu', 'Helmikuu', 'Maaliskuu', 'Huhtikuu', 'Toukokuu', 'Kesäkuu', 'Heinäkuu', 'Elokuu', 'Syyskuu', 'Lokakuu', 'Marraskuu', 'Joulukuu'];
