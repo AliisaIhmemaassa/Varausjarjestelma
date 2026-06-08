@@ -244,6 +244,16 @@ function openPicker() {
     dropdown.classList.add('open');
     renderPicker();
 }
+function openPickerEnd() {
+    if (!endVal) {openPicker();}
+    else {
+        const [y,m] = endVal.split('-').map(Number);
+        pickerYear = y; pickerMonth = m-1;
+        pickingStep = startVal ? 1 : 0;
+        dropdown.classList.add('open');
+        renderPicker();
+    }
+}
 
 function closePicker() { dropdown.classList.remove('open'); }
 
@@ -256,6 +266,7 @@ function clearSelection() {
 }
 
 startDisplay.addEventListener('click', openPicker);
+endDisplay.addEventListener('click', openPickerEnd);
 
 document.addEventListener('click', e => {
     if (!wrap.contains(e.target)) closePicker();
@@ -307,6 +318,8 @@ function renderPicker() {
 }
 
 function dayClick(ds) {
+    const now = new Date();
+    if (ds < toDateStr(now)) return;
     if (pickingStep===0) {
         startVal=ds; endVal=null;
         startDisplay.value=toDisplay(ds);
