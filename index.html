@@ -15,10 +15,13 @@
 
 
 <div id="lock-screen" class="lock-screen">
+  <div class="top-bar">
+    <button class="top-btn theme-btn" onclick="toggleTheme(this)">Tumma teema</button>
+  </div>
   <div id="lock-box" class="lock-box">
     <h2>Varauskalenteri</h2>
     <p>Anna salasana jatkaaksesi</p>
-    <input type="password" id="lock-input" placeholder="Salasana" onkeydown="if(event.key==='Enter')unlock()">
+    <input type="password" id="lock-input" placeholder="Salasana">
     <button id="lock-btn" class="lock-btn" onclick="unlock()">Kirjaudu sisään</button>
     <div id="lock-error" class="lock-error">Väärä salasana, yritä uudelleen.</div>
   </div>
@@ -26,7 +29,10 @@
 
 
 <div class="container" id="app" style="display:none;">
-  <button onclick="logout()">Kirjaudu ulos</button>
+  <div class="top-bar">
+    <button class="top-btn theme-btn" onclick="toggleTheme(this)">Tumma teema</button>
+    <button class="top-btn danger" onclick="logout()">Kirjaudu ulos</button>
+  </div>
   <header>
     <h1>Varauskalenteri</h1>
     <p>Napauta päivää kalenterissa tai syötä päivämäärät manuaalisesti alla.</p>
@@ -99,7 +105,7 @@
 
     <div class="form-group" style="margin-bottom:12px;">
       <label>Varattu nimellä</label>
-      <input type="text" class="plain-input" id="booked-for" placeholder="Nimi tai kuvaus…">
+      <input type="text" class="plain-input" id="booked-for" placeholder="Nimi tai kuvaus…" maxlength="80">
     </div>
     <div id="form-error" class="error"></div>
     <button class="submit-btn" onclick="submitBooking()">Lisää varaus</button>
@@ -117,6 +123,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
+<script src="theme-toggle.js"></script>
 
 </body>
 </html>
