@@ -157,7 +157,7 @@ function renderCalendar() {
         }
 
         el.addEventListener('click', () => {
-            if (!booking) {
+            if (!booking && dateStr >= toDateStr(new Date())) {
                 document.getElementById('start-display').value = toDisplay(dateStr);
                 document.getElementById('end-display').value = toDisplay(dateStr);
                 document.getElementById('booked-for').focus();

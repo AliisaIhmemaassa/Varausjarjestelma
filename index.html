@@ -13,6 +13,7 @@
 </head>
 <body>
 
+
 <div id="lock-screen" class="lock-screen">
   <div id="lock-box" class="lock-box">
     <h2>Varauskalenteri</h2>
@@ -21,7 +22,7 @@
     <button id="lock-btn" class="lock-btn" onclick="unlock()">Kirjaudu sisään</button>
     <div id="lock-error" class="lock-error">Väärä salasana, yritä uudelleen.</div>
   </div>
-</div>
+</div> <!-- lock screen end -->
 
 
 <div class="container" id="app" style="display:none;">
@@ -37,17 +38,19 @@
       <h2 id="month-label"></h2>
       <button class="nav-btn" onclick="changeMonth(1)">&#8594;</button>
     </div>
+
     <div class="day-labels">
       <div class="day-label">Ma</div><div class="day-label">Ti</div><div class="day-label">Ke</div>
       <div class="day-label">To</div><div class="day-label">Pe</div><div class="day-label">La</div><div class="day-label">Su</div>
     </div>
     <div class="cal-grid" id="cal-grid"></div>
-  </div>
+  </div> <!-- card end -->
+
+
 
   <div class="card">
     <p class="section-title">Uusi varaus</p>
     <div class="wrap">
-
       <div id="picker-wrap">
         <div class="form-row">
 
@@ -66,46 +69,51 @@
               <i class="ti ti-calendar cal-icon" aria-hidden="true"></i>
             </div>
           </div>
-        </div>
+        </div> <!-- form row end -->
 
 
-          <div class="picker-dropdown" id="picker-dropdown">
-            <div class="picker-head">
-              <button class="picker-nav" id="prev-month">&#8592;</button>
-              <span id="picker-month-label"></span>
-              <button class="picker-nav" id="next-month">&#8594;</button>
-            </div>
-            <div class="picker-grid" id="picker-grid">
-              <div class="picker-day-label">Ma</div>
-              <div class="picker-day-label">Ti</div>
-              <div class="picker-day-label">Ke</div>
-              <div class="picker-day-label">To</div>
-              <div class="picker-day-label">Pe</div>
-              <div class="picker-day-label">La</div>
-              <div class="picker-day-label">Su</div>
-            </div>
-            <div class="picker-hint" id="picker-hint">Paina aloitus päivää</div>
-            <button class="picker-clear" id="picker-clear" onclick="clearSelection()">Clear</button>
+        <div class="picker-dropdown" id="picker-dropdown">
+          <div class="picker-head">
+            <button class="picker-nav" id="prev-month">&#8592;</button>
+            <span id="picker-month-label"></span>
+            <button class="picker-nav" id="next-month">&#8594;</button>
           </div>
-        </div>
-      </div>
+          <div class="picker-grid" id="picker-grid">
+            <div class="picker-day-label">Ma</div>
+            <div class="picker-day-label">Ti</div>
+            <div class="picker-day-label">Ke</div>
+            <div class="picker-day-label">To</div>
+            <div class="picker-day-label">Pe</div>
+            <div class="picker-day-label">La</div>
+            <div class="picker-day-label">Su</div>
+          </div>
+          <div class="picker-hint" id="picker-hint">Paina aloitus päivää</div>
+          <button class="picker-clear" id="picker-clear" onclick="clearSelection()">Clear</button>
+        </div> <!-- dropdown end -->
+      </div> <!-- picker wrap end -->
+    </div> <!-- wrap end -->
 
-      <div class="form-group" style="margin-bottom:12px;">
-        <label>Varattu nimellä</label>
-        <input type="text" class="plain-input" id="booked-for" placeholder="Nimi tai kuvaus…">
-      </div>
-      <div id="form-error" class="error"></div>
-      <button class="submit-btn" onclick="submitBooking()">Lisää varaus</button>
-      <div id="result-msg" class="result-msg"></div>
+
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>Varattu nimellä</label>
+      <input type="text" class="plain-input" id="booked-for" placeholder="Nimi tai kuvaus…">
     </div>
-</div>
+    <div id="form-error" class="error"></div>
+    <button class="submit-btn" onclick="submitBooking()">Lisää varaus</button>
+    <div id="result-msg" class="result-msg"></div>
+  </div> <!-- card end -->
+
+
 
   <div class="card" id="bookings-card" style="display:none;">
     <p class="section-title">Kaikki varaukset</p>
     <div id="bookings-list"></div>
   </div>
-</div>
+</div> <!-- container end -->
+
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
+
 </body>
 </html>
