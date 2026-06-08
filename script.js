@@ -30,6 +30,9 @@ async function logout() {
     await sb.auth.signOut();
     document.getElementById('app').style.display = 'none';
     document.getElementById('lock-screen').style.display = 'flex';
+    document.getElementById('start-display').value = '';
+    document.getElementById('end-display').value = '';
+    document.getElementById('booked-for').value = '';
 }
 
 function showApp() {
@@ -43,17 +46,10 @@ function showApp() {
 
 // Check if already logged in on page load
 sb.auth.getSession().then(({ data: { session } }) => {
-    if (session) {
-        showApp();
-    }
+    if (session) showApp();
 });
 
-// Allow Enter key on password field
-document.addEventListener('DOMContentLoaded', () => {
-    const lockInput = document.getElementById('lock-input');
-    if (lockInput) lockInput.addEventListener('keydown', e => { if (e.key === 'Enter') unlock(); });
-});
-
+document.getElementById('lock-input').addEventListener('keydown', e => { if (e.key === 'Enter') unlock(); });
 // ─── Supabase data ────────────────────────────────────────────────────────────
 
 async function loadBookings() {
@@ -137,6 +133,7 @@ function renderCalendar() {
         const booking = getBookingForDate(dateStr);
         let cls = 'cal-day';
         if (dateStr === today) cls += ' today';
+        if (dateStr < today) cls += ' past';
         if (booking) {
             if (booking.start === booking.end) cls += ' booked-single';
             else if (dateStr === booking.start) cls += ' booked-start';
@@ -304,6 +301,7 @@ function renderPicker() {
         const el = document.createElement('button');
         let cls = 'picker-day';
         if (ds===todayStr) cls+=' today';
+        if (ds < toDateStr(new Date())) cls += ' past';
         if (startVal && endVal) {
             if (ds===startVal && startVal===endVal) cls+=' selected';
             else if (ds===startVal) cls+=' range-start';
@@ -334,7 +332,3 @@ function dayClick(ds) {
         renderPicker();
     }
 }
-const now = new Date();
-currentYear = now.getFullYear();
-currentMonth = now.getMonth();
-renderCalendar();
