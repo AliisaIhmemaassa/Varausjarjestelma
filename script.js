@@ -11,7 +11,7 @@ let bookings = [];
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
 async function unlock() {
-    const email = document.getElementById('lock-email').value.trim();
+    const email = 'daniel.brown23103@gmail.com';
     const password = document.getElementById('lock-input').value;
     const errEl = document.getElementById('lock-error');
 

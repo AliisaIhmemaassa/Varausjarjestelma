@@ -14,11 +14,10 @@
 <div id="lock-screen" class="lock-screen">
   <div id="lock-box" class="lock-box">
     <h2>Varauskalenteri</h2>
-    <p>Enter the password to continue</p>
-    <input type="email" id="lock-email" placeholder="Sähköposti">
-    <input type="password" id="lock-input" placeholder="Password" onkeydown="if(event.key==='Enter')unlock()">
-    <button id="lock-btn" class="lock-btn" onclick="unlock()">Unlock</button>
-    <div id="lock-error" class="lock-error">Incorrect password, try again.</div>
+    <p>Anna salasana jatkaaksesi</p>
+    <input type="password" id="lock-input" placeholder="Salasana" onkeydown="if(event.key==='Enter')unlock()">
+    <button id="lock-btn" class="lock-btn" onclick="unlock()">Kirjaudu sisään</button>
+    <div id="lock-error" class="lock-error">Väärä salasana, yritä uudelleen.</div>
   </div>
 </div>
 
