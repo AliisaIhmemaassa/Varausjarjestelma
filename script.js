@@ -327,7 +327,7 @@ function dayClick(ds) {
         pickingStep=1;
         renderPicker();
     } else {
-        if (ds < startVal) { startVal=ds; pickingStep=1; startDisplay.value=toDisplay(ds); endVal=null; endDisplay.value=''; renderPicker(); return; }
+        if (ds < startVal) { startVal=ds; pickingStep=1; startDisplay.value=toDisplay(ds); /*endVal=null; endDisplay.value='';*/ renderPicker(); return; }
         endVal=ds;
         endDisplay.value=toDisplay(ds);
         endDisplay.style.opacity='1';
