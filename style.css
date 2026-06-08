@@ -347,5 +347,5 @@
   @media (max-width: 480px) {
     .form-row { grid-template-columns: 1fr; }
     .cal-day { min-height: 40px; font-size: 12px; }
-    .booked-label { font-size: 7px; }
+    .booked-label { font-size: 9px; }
   }
