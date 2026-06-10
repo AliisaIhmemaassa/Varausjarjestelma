@@ -29,6 +29,10 @@
 --accent-dark:  #6dcfa0;   /* flipped — lighter for dark bg hover states */
 --danger:       #e05555;   /* brightened so it's visible on dark */
 --focus-ring:   0 0 0 3px rgba(72, 180, 130, 0.25);
+
+.cal-icon {
+    filter: invert(52%) sepia(50%) saturate(400%) hue-rotate(110deg);
+}
 }
 /* ─── Base ────────────────────────────────────────────────────────────────── */
 
@@ -145,6 +149,13 @@ header p {
   font-size: 17px;
   font-weight: 500;
 }
+
+.cal-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.5;
+}
+
 
 .nav-btn {
   background: none;
@@ -472,6 +483,58 @@ header p {
 }
 
 .picker-btn:hover { background: var(--bg); }
+
+/* ─── Modal ──────────────────────────────────────────────────────────────── */
+
+.modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.3);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 999;
+}
+
+.modal-box {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    width: 340px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+.modal-box .plain-input {
+    width: 100%;
+    padding: 9px 12px;
+}
+
+.modal-box .form-row {
+    gap: 8px;
+}
+
+.modal-box p {
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 1.25rem;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.modal-cancel {
+    flex: 1; padding: 9px; border-radius: var(--radius-sm);
+    border: 0.5px solid var(--border-strong); background: none;
+    font-size: 14px; font-family: inherit; cursor: pointer; color: var(--text-muted);
+}
+.modal-cancel:hover { background: var(--bg); }
+
+.modal-confirm {
+    flex: 1; padding: 9px; border-radius: var(--radius-sm);
+    border: none; background: var(--danger);
+    font-size: 14px; font-family: inherit; cursor: pointer; color: white; font-weight: 500;
+}
+.modal-confirm:hover { background: #8a2424; }
 
 /* ─── Media queries ───────────────────────────────────────────────────────── */
 

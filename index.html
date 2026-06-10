@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Varausjärjestelmä</title>
 <link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="style-lock.css">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
@@ -61,50 +60,27 @@
         <div class="form-row">
 
           <div class="form-group">
-            <label>Alku päivä</label>
+            <label for="start-display">Alku päivä</label>
             <div class="date-input-wrap">
               <input type="text" id="start-display" placeholder="Valitse ajanjakso" readonly>
-              <i class="ti ti-calendar cal-icon" aria-hidden="true"></i>
+              <img src="media/calendar_11.png" class="cal-icon" alt="" aria-hidden="true">
             </div>
           </div>
 
           <div class="form-group">
-            <label>Loppu päivä</label>
+            <label for="end-display">Loppu päivä</label>
             <div class="date-input-wrap">
               <input type="text" id="end-display" placeholder="" readonly style="cursor:default;opacity:0.6;">
-              <i class="ti ti-calendar cal-icon" aria-hidden="true"></i>
+              <img src="media/calendar_11.png" class="cal-icon" alt="" aria-hidden="true">
             </div>
           </div>
         </div> <!-- form row end -->
-
-
-        <div class="picker-dropdown" id="picker-dropdown">
-          <div class="picker-head">
-            <button class="picker-nav" id="prev-month">&#8592;</button>
-            <span id="picker-month-label"></span>
-            <button class="picker-nav" id="next-month">&#8594;</button>
-          </div>
-          <div class="picker-grid" id="picker-grid">
-            <div class="picker-day-label">Ma</div>
-            <div class="picker-day-label">Ti</div>
-            <div class="picker-day-label">Ke</div>
-            <div class="picker-day-label">To</div>
-            <div class="picker-day-label">Pe</div>
-            <div class="picker-day-label">La</div>
-            <div class="picker-day-label">Su</div>
-          </div>
-          <div class="picker-hint" id="picker-hint">Paina aloitus päivää</div>
-          <div class="picker-btn-container">
-            <button class="picker-btn" id="picker-clear" onclick="clearSelection()">Poista valinta</button>
-            <button class="picker-btn" id="picker-confirm" onclick="closePicker()">Valmis</button>
-          </div>
-        </div> <!-- dropdown end -->
       </div> <!-- picker wrap end -->
     </div> <!-- wrap end -->
 
 
     <div class="form-group" style="margin-bottom:12px;">
-      <label>Varattu nimellä</label>
+      <label for="booked-for">Varattu nimellä</label>
       <input type="text" class="plain-input" id="booked-for" placeholder="Nimi tai kuvaus…" maxlength="80">
     </div>
     <div id="form-error" class="error"></div>
@@ -113,11 +89,56 @@
   </div> <!-- card end -->
 
 
-
   <div class="card" id="bookings-card" style="display:none;">
     <p class="section-title">Kaikki varaukset</p>
     <div id="bookings-list"></div>
   </div>
+
+  <div id="confirm-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <p id="modal-message">Poistetaanko varaus?</p>
+      <div class="modal-buttons">
+        <button class="modal-cancel" onclick="closeModal()">Peruuta</button>
+        <button class="modal-confirm" onclick="confirmAction()">Poista</button>
+      </div>
+    </div>
+  </div> <!-- confirm-modal end -->
+  
+  <div id="edit-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <p style="font-weight:500; margin-bottom:1rem;">Muokkaa varausta</p>
+
+      <div id="edit-picker-wrap" style="position:relative;">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-start">Alku päivä</label>
+            <div class="date-input-wrap">
+              <input type="text" id="edit-start" class="plain-input" readonly>
+              <img src="media/calendar_11.png" class="cal-icon" alt="" aria-hidden="true">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="edit-end">Loppu päivä</label>
+            <div class="date-input-wrap">
+              <input type="text" id="edit-end" class="plain-input" readonly>
+              <img src="media/calendar_11.png" class="cal-icon" alt="" aria-hidden="true">
+            </div>
+          </div>
+        </div>
+      </div> <!-- edit-picker-wrap end -->
+
+      <div class="form-group" style="margin-bottom:1.25rem; text-align:left; margin-top:12px;">
+        <label for="edit-name">Varattu nimellä</label>
+        <input type="text" id="edit-name" class="plain-input" maxlength="80">
+      </div>
+      <div id="edit-error" class="error"></div>
+      <div class="modal-buttons">
+        <button class="modal-cancel" onclick="closeEditModal()">Peruuta</button>
+        <button class="modal-confirm" style="background:var(--accent);" onclick="saveEdit()">Tallenna</button>
+      </div>
+    </div>
+  </div> <!-- edit-modal end -->
+
 </div> <!-- container end -->
 
 

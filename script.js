@@ -8,16 +8,15 @@ const MONTHS = ['Tammikuu', 'Helmikuu', 'Maaliskuu', 'Huhtikuu', 'Toukokuu', 'Ke
 let currentYear, currentMonth;
 let bookings = [];
 
-// ─── Auth ────────────────────────────────────────────────────────────────────
+// ─── Auth ─────────────────────────────────────────────────────────────────────
 
 async function unlock() {
     const email = 'daniel.brown23103@gmail.com';
     const password = document.getElementById('lock-input').value;
     const errEl = document.getElementById('lock-error');
-
     const { error } = await sb.auth.signInWithPassword({ email, password });
     if (error) {
-        errEl.textContent = 'Väärä sähköposti tai salasana.';
+        errEl.textContent = 'Väärä salasana.';
         errEl.style.display = 'block';
         document.getElementById('lock-input').value = '';
         document.getElementById('lock-input').focus();
@@ -44,12 +43,14 @@ function showApp() {
     loadBookings();
 }
 
-// Check if already logged in on page load
 sb.auth.getSession().then(({ data: { session } }) => {
     if (session) showApp();
 });
 
-document.getElementById('lock-input').addEventListener('keydown', e => { if (e.key === 'Enter') unlock(); });
+document.getElementById('lock-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') unlock();
+});
+
 // ─── Supabase data ────────────────────────────────────────────────────────────
 
 async function loadBookings() {
@@ -92,12 +93,9 @@ function toDisplay(s) {
     return String(d).padStart(2,'0') + '.' + String(m).padStart(2,'0') + '.' + y;
 }
 
-function displayToStr(s) {
-    const [d, m, y] = s.split('.').map(Number);
-    return y + '-' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+function toStr(y,m,d) {
+    return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
 }
-
-function toStr(y,m,d) { return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
 
 function changeMonth(dir) {
     currentMonth += dir;
@@ -109,6 +107,198 @@ function changeMonth(dir) {
 function getBookingForDate(dateStr) {
     return bookings.find(b => dateStr >= b.start && dateStr <= b.end);
 }
+
+// ─── Reusable Picker ──────────────────────────────────────────────────────────
+
+function createPicker(config) {
+    // config: { wrapId, dropdownId, startInputId, endInputId, allowPast }
+
+    const state = {
+        pickerYear: new Date().getFullYear(),
+        pickerMonth: new Date().getMonth(),
+        startVal: null,
+        endVal: null,
+        pickingStep: 0,
+    };
+
+    const wrap = document.getElementById(config.wrapId);
+    const startInput = document.getElementById(config.startInputId);
+    const endInput = document.getElementById(config.endInputId);
+
+    // Build dropdown HTML
+    const dropdown = document.createElement('div');
+    dropdown.className = 'picker-dropdown';
+    dropdown.id = config.dropdownId;
+    dropdown.innerHTML = `
+        <div class="picker-head">
+            <button class="picker-nav picker-prev">&#8592;</button>
+            <span class="picker-month-label"></span>
+            <button class="picker-nav picker-next">&#8594;</button>
+        </div>
+        <div class="picker-grid">
+            <div class="picker-day-label">Ma</div>
+            <div class="picker-day-label">Ti</div>
+            <div class="picker-day-label">Ke</div>
+            <div class="picker-day-label">To</div>
+            <div class="picker-day-label">Pe</div>
+            <div class="picker-day-label">La</div>
+            <div class="picker-day-label">Su</div>
+        </div>
+        <div class="picker-hint"></div>
+        <div class="picker-btn-container">
+            <button class="picker-btn picker-clear-btn">Poista valinta</button>
+            <button class="picker-btn picker-confirm-btn">Valmis</button>
+        </div>
+    `;
+    wrap.appendChild(dropdown);
+
+    const monthLabel = dropdown.querySelector('.picker-month-label');
+    const hint = dropdown.querySelector('.picker-hint');
+    const grid = dropdown.querySelector('.picker-grid');
+
+    // Nav buttons
+    dropdown.querySelector('.picker-prev').addEventListener('click', e => {
+        e.stopPropagation();
+        state.pickerMonth--;
+        if (state.pickerMonth < 0) { state.pickerMonth = 11; state.pickerYear--; }
+        render();
+    });
+    dropdown.querySelector('.picker-next').addEventListener('click', e => {
+        e.stopPropagation();
+        state.pickerMonth++;
+        if (state.pickerMonth > 11) { state.pickerMonth = 0; state.pickerYear++; }
+        render();
+    });
+
+    // Clear / confirm buttons
+    dropdown.querySelector('.picker-clear-btn').addEventListener('click', e => {
+        e.stopPropagation(); clear();
+    });
+    dropdown.querySelector('.picker-confirm-btn').addEventListener('click', e => {
+        e.stopPropagation(); close();
+    });
+
+    // Open on input click
+    startInput.addEventListener('click', () => open(false));
+    endInput.addEventListener('click', () => open(true));
+
+    // Close on outside click
+    document.addEventListener('click', e => {
+        if (!wrap.contains(e.target)) close();
+    });
+
+    function open(fromEnd = false) {
+        state.pickerYear = new Date().getFullYear();
+        state.pickerMonth = new Date().getMonth();
+        if (fromEnd && state.endVal) {
+            const [y,m] = state.endVal.split('-').map(Number);
+            state.pickerYear = y; state.pickerMonth = m-1;
+        } else if (state.startVal) {
+            const [y,m] = state.startVal.split('-').map(Number);
+            state.pickerYear = y; state.pickerMonth = m-1;
+        }
+        state.pickingStep = state.startVal ? 1 : 0;
+        dropdown.classList.add('open');
+        render();
+    }
+
+    function close() { dropdown.classList.remove('open'); }
+
+    function clear() {
+        state.startVal = null; state.endVal = null; state.pickingStep = 0;
+        startInput.value = '';
+        endInput.value = '';
+        endInput.style.opacity = '0.6';
+        render();
+    }
+
+    function render() {
+        monthLabel.textContent = MONTHS[state.pickerMonth] + ' ' + state.pickerYear;
+        hint.textContent = state.pickingStep === 0 ? 'Paina aloitus päivää' : 'Paina lopetus päivää';
+
+        const labels = grid.querySelectorAll('.picker-day-label');
+        grid.innerHTML = '';
+        labels.forEach(l => grid.appendChild(l.cloneNode(true)));
+
+        const todayStr = toStr(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+        let offset = new Date(state.pickerYear, state.pickerMonth, 1).getDay() - 1;
+        if (offset < 0) offset = 6;
+        const days = new Date(state.pickerYear, state.pickerMonth+1, 0).getDate();
+
+        for (let i = 0; i < offset; i++) {
+            const el = document.createElement('div');
+            el.className = 'picker-day empty';
+            grid.appendChild(el);
+        }
+
+        for (let d = 1; d <= days; d++) {
+            const ds = toStr(state.pickerYear, state.pickerMonth, d);
+            const el = document.createElement('button');
+            let cls = 'picker-day';
+            if (ds === todayStr) cls += ' today';
+            if (!config.allowPast && ds < toDateStr(new Date())) cls += ' past';
+            if (state.startVal && state.endVal) {
+                if (ds === state.startVal && state.startVal === state.endVal) cls += ' selected';
+                else if (ds === state.startVal) cls += ' range-start';
+                else if (ds === state.endVal) cls += ' range-end';
+                else if (ds > state.startVal && ds < state.endVal) cls += ' in-range';
+            } else if (state.startVal && ds === state.startVal) cls += ' selected';
+            el.className = cls;
+            el.textContent = d;
+            el.addEventListener('click', e => { e.stopPropagation(); dayClick(ds); });
+            grid.appendChild(el);
+        }
+    }
+
+    function dayClick(ds) {
+        if (!config.allowPast && ds < toDateStr(new Date())) return;
+        if (state.pickingStep === 0) {
+            state.startVal = ds; state.endVal = null;
+            startInput.value = toDisplay(ds);
+            endInput.value = ''; endInput.style.opacity = '0.6';
+            state.pickingStep = 1;
+            render();
+        } else {
+            if (ds < state.startVal) {
+                state.startVal = ds; state.pickingStep = 1;
+                startInput.value = toDisplay(ds);
+                state.endVal = null; endInput.value = '';
+                render(); return;
+            }
+            state.endVal = ds;
+            endInput.value = toDisplay(ds);
+            endInput.style.opacity = '1';
+            render();
+        }
+    }
+
+    return {
+        get startVal() { return state.startVal; },
+        get endVal() { return state.endVal; },
+        set startVal(v) { state.startVal = v; },
+        set endVal(v) { state.endVal = v; },
+        set pickingStep(v) { state.pickingStep = v; },
+        open, close, clear,
+    };
+}
+
+// ─── Init pickers ─────────────────────────────────────────────────────────────
+
+const mainPicker = createPicker({
+    wrapId: 'picker-wrap',
+    dropdownId: 'picker-dropdown',
+    startInputId: 'start-display',
+    endInputId: 'end-display',
+    allowPast: false,
+});
+
+const editPicker = createPicker({
+    wrapId: 'edit-picker-wrap',
+    dropdownId: 'edit-picker-dropdown',
+    startInputId: 'edit-start',
+    endInputId: 'edit-end',
+    allowPast: true,
+});
 
 // ─── Calendar ─────────────────────────────────────────────────────────────────
 
@@ -153,16 +343,16 @@ function renderCalendar() {
             el.appendChild(lbl);
         }
 
-        el.addEventListener('click', () => {
+        /*el.addEventListener('click', () => {
             if (!booking && dateStr >= toDateStr(new Date())) {
                 document.getElementById('start-display').value = toDisplay(dateStr);
                 document.getElementById('end-display').value = toDisplay(dateStr);
                 document.getElementById('booked-for').focus();
-                startVal = dateStr;
-                endVal = dateStr;
-                pickingStep = 1;
+                mainPicker.startVal = dateStr;
+                mainPicker.endVal = dateStr;
+                mainPicker.pickingStep = 1;
             }
-        });
+        });*/
 
         grid.appendChild(el);
     }
@@ -176,12 +366,12 @@ function renderBookingsList() {
     const sorted = [...bookings].sort((a,b) => a.start.localeCompare(b.start));
     list.innerHTML = sorted.map(b => {
         const range = b.start === b.end ? formatDisplay(b.start) : formatDisplay(b.start) + ' – ' + formatDisplay(b.end);
-        return `<div class="booking-item">
+        return `<div class="booking-item" data-booking="${JSON.stringify(b).replace(/"/g, '&quot;')}" onclick="openEditModal(this)" style="cursor:pointer;">
         <div>
             <div class="booking-name">${b.name}</div>
             <div class="booking-dates">${range}</div>
         </div>
-        <button class="delete-btn" onclick="removeBooking(${b.id})" aria-label="Poista varaus">&times;</button>
+        <button class="delete-btn" data-id="${b.id}" data-name="${b.name.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); confirmDelete(this.dataset.id, this.dataset.name)" aria-label="Poista varaus">&times;</button>
         </div>`;
     }).join('');
 }
@@ -195,8 +385,8 @@ async function removeBooking(id) {
 async function submitBooking() {
     const name = document.getElementById('booked-for').value.trim();
     const errEl = document.getElementById('form-error');
-    const start = startVal;
-    const end = endVal;
+    const start = mainPicker.startVal;
+    const end = mainPicker.endVal;
 
     if (!start || !end) { errEl.textContent = 'Valitse päivät kalenterista.'; errEl.style.display='block'; return; }
     if (!name) { errEl.textContent = 'Kirjoita varaajan nimi.'; errEl.style.display='block'; return; }
@@ -204,131 +394,82 @@ async function submitBooking() {
     if (conflict) { errEl.textContent = `Päivät ovat päällekkäisiä "${conflict.name}":n kanssa.`; errEl.style.display='block'; return; }
 
     errEl.style.display = 'none';
-
     const saved = await saveBooking(start, end, name);
     if (!saved) { errEl.textContent = 'Tallennus epäonnistui, yritä uudelleen.'; errEl.style.display='block'; return; }
 
-    startVal=null; endVal=null; pickingStep=0;
-    startDisplay.value=''; endDisplay.value=''; endDisplay.style.opacity='0.6';
-    document.getElementById('booked-for').value='';
-
+    mainPicker.clear();
+    document.getElementById('booked-for').value = '';
     currentYear = parseDate(start).getFullYear();
     currentMonth = parseDate(start).getMonth();
     await loadBookings();
 }
 
-// ─── Mini picker ──────────────────────────────────────────────────────────────
+// ─── Delete Modal ─────────────────────────────────────────────────────────────
 
-let pickerYear, pickerMonth;
-let startVal = null, endVal = null;
-let pickingStep = 0;
+let pendingDeleteId = null;
 
-const dropdown = document.getElementById('picker-dropdown');
-const wrap = document.getElementById('picker-wrap');
-const startDisplay = document.getElementById('start-display');
-const endDisplay = document.getElementById('end-display');
-const hint = document.getElementById('picker-hint');
+function confirmDelete(id, name) {
+    pendingDeleteId = id;
+    document.getElementById('modal-message').textContent = `Poistetaanko varaus "${name}"?`;
+    document.getElementById('confirm-modal').style.display = 'flex';
+}
 
-function openPicker() {
-    const now = new Date();
-    pickerYear = now.getFullYear();
-    pickerMonth = now.getMonth();
-    if (startVal) {
-        const [y,m] = startVal.split('-').map(Number);
-        pickerYear = y; pickerMonth = m-1;
+function confirmAction() {
+    if (pendingDeleteId !== null) {
+        removeBooking(pendingDeleteId);
+        pendingDeleteId = null;
     }
-    pickingStep = startVal ? 1 : 0;
-    dropdown.classList.add('open');
-    renderPicker();
-}
-function openPickerEnd() {
-    if (!endVal) {openPicker();}
-    else {
-        const [y,m] = endVal.split('-').map(Number);
-        pickerYear = y; pickerMonth = m-1;
-        pickingStep = startVal ? 1 : 0;
-        dropdown.classList.add('open');
-        renderPicker();
-    }
+    closeModal();
 }
 
-function closePicker() { dropdown.classList.remove('open'); }
-
-function clearSelection() {
-    startVal = null; endVal = null; pickingStep = 0;
-    startDisplay.value = '';
-    endDisplay.value = '';
-    endDisplay.style.opacity = '0.6';
-    renderPicker();
+function closeModal() {
+    document.getElementById('confirm-modal').style.display = 'none';
 }
 
-startDisplay.addEventListener('click', openPicker);
-endDisplay.addEventListener('click', openPickerEnd);
+// ─── Edit Modal ───────────────────────────────────────────────────────────────
 
-document.addEventListener('click', e => {
-    if (!wrap.contains(e.target)) closePicker();
-});
+let editingId = null;
 
-document.getElementById('prev-month').addEventListener('click', e => {
-    e.stopPropagation();
-    pickerMonth--; if (pickerMonth<0){pickerMonth=11;pickerYear--;}
-    renderPicker();
-});
-document.getElementById('next-month').addEventListener('click', e => {
-    e.stopPropagation();
-    pickerMonth++; if (pickerMonth>11){pickerMonth=0;pickerYear++;}
-    renderPicker();
-});
-
-function renderPicker() {
-    document.getElementById('picker-month-label').textContent = MONTHS[pickerMonth]+' '+pickerYear;
-    hint.textContent = pickingStep===0 ? 'Paina aloitus päivää' : 'Paina lopetus päivää';
-
-    const grid = document.getElementById('picker-grid');
-    const labels = grid.querySelectorAll('.picker-day-label');
-    grid.innerHTML = '';
-    labels.forEach(l => grid.appendChild(l.cloneNode(true)));
-
-    const todayStr = toStr(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
-    let offset = new Date(pickerYear, pickerMonth, 1).getDay() - 1;
-    if (offset < 0) offset = 6;
-    const days = new Date(pickerYear, pickerMonth+1, 0).getDate();
-
-    for (let i=0;i<offset;i++) { const el=document.createElement('div'); el.className='picker-day empty'; grid.appendChild(el); }
-
-    for (let d=1;d<=days;d++) {
-        const ds = toStr(pickerYear, pickerMonth, d);
-        const el = document.createElement('button');
-        let cls = 'picker-day';
-        if (ds===todayStr) cls+=' today';
-        if (ds < toDateStr(new Date())) cls += ' past';
-        if (startVal && endVal) {
-            if (ds===startVal && startVal===endVal) cls+=' selected';
-            else if (ds===startVal) cls+=' range-start';
-            else if (ds===endVal) cls+=' range-end';
-            else if (ds>startVal && ds<endVal) cls+=' in-range';
-        } else if (startVal && ds===startVal) cls+=' selected';
-        el.className=cls;
-        el.textContent=d;
-        el.addEventListener('click', e => { e.stopPropagation(); dayClick(ds); });
-        grid.appendChild(el);
-    }
+function openEditModal(el) {
+    const b = JSON.parse(el.dataset.booking.replace(/&quot;/g, '"'));
+    editingId = b.id;
+    editPicker.startVal = b.start;
+    editPicker.endVal = b.end;
+    document.getElementById('edit-start').value = toDisplay(b.start);
+    document.getElementById('edit-end').value = toDisplay(b.end);
+    document.getElementById('edit-end').style.opacity = '1';
+    document.getElementById('edit-name').value = b.name;
+    document.getElementById('edit-error').style.display = 'none';
+    document.getElementById('edit-modal').style.display = 'flex';
 }
 
-function dayClick(ds) {
-    const now = new Date();
-    if (ds < toDateStr(now)) return;
-    if (pickingStep===0) {
-        startVal=ds; endVal=null;
-        startDisplay.value=toDisplay(ds);
-        endDisplay.value=''; endDisplay.style.opacity='0.6';
-        pickingStep=1;
-        renderPicker();
-    } else {
-        if (ds < startVal) { startVal=ds; pickingStep=1; startDisplay.value=toDisplay(ds); /*endVal=null; endDisplay.value='';*/ renderPicker(); return; }
-        endVal=ds;
-        endDisplay.value=toDisplay(ds);
-        endDisplay.style.opacity='1';
-        renderPicker();
-    }
+function closeEditModal() {
+    document.getElementById('edit-modal').style.display = 'none';
+    editingId = null;
+    editPicker.clear();
 }
+
+async function saveEdit() {
+    const name = document.getElementById('edit-name').value.trim();
+    const errEl = document.getElementById('edit-error');
+    const start = editPicker.startVal;
+    const end = editPicker.endVal;
+
+    if (!start || !end) { errEl.textContent = 'Valitse päivät.'; errEl.style.display='block'; return; }
+    if (!name) { errEl.textContent = 'Kirjoita nimi.'; errEl.style.display='block'; return; }
+    const conflict = bookings.find(b => b.id !== editingId && !(end < b.start || start > b.end));
+    if (conflict) { errEl.textContent = `Päivät ovat päällekkäisiä "${conflict.name}":n kanssa.`; errEl.style.display='block'; return; }
+
+    const { error } = await sb.from('bookings').update({ start, end, name }).eq('id', editingId);
+    if (error) { errEl.textContent = 'Tallennus epäonnistui.'; errEl.style.display='block'; return; }
+
+    closeEditModal();
+    await loadBookings();
+}
+
+// ─── Initial render ───────────────────────────────────────────────────────────
+
+const now = new Date();
+currentYear = now.getFullYear();
+currentMonth = now.getMonth();
+renderCalendar();
