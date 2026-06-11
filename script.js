@@ -56,7 +56,7 @@ document.getElementById('lock-input').addEventListener('keydown', e => {
 async function loadBookings() {
     const { data, error } = await sb.from('bookings').select('*').order('start');
     if (error) { console.error(error); return; }
-    bookings = data;
+    bookings = data.map((b, i) => ({ ...b, colorIndex: i % 2 }));
     renderCalendar();
     renderBookingsList();
 }
@@ -67,11 +67,11 @@ async function saveBooking(start, end, name) {
     return data[0];
 }
 
-/*async function debug() {
+async function debug() {
     const name = document.getElementById('booked-for').value.trim();
     const errEl = document.getElementById('form-error');
-    const start = '2026-02-24';
-    const end = '2026-02-28';
+    const start = '2026-02-22';
+    const end = '2026-02-23';
 
     errEl.style.display = 'none';
     console.log(start, end);
@@ -80,7 +80,7 @@ async function saveBooking(start, end, name) {
 
     mainPicker.clear();
     document.getElementById('booked-for').value = '';
-}*/
+}
 
 async function deleteBooking(id) {
     const { error } = await sb.from('bookings').delete().eq('id', id);
@@ -113,9 +113,10 @@ function toStr(y,m,d) {
 }
 
 function changeMonth(dir) {
-    currentMonth += dir;
-    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    const newMonth = currentMonth + dir;
+    if (newMonth > 11 && currentYear <= (new Date().getFullYear() + 5)) { currentMonth = 0; currentYear++; }
+    else if (newMonth < 0 && currentYear >= (new Date().getFullYear() - 5)) { currentMonth = 11; currentYear--; }
+    else if (currentYear >= (new Date().getFullYear() - 5) && currentYear <= (new Date().getFullYear() + 5)) { currentMonth += dir; }
     renderCalendar();
 }
 
@@ -342,10 +343,11 @@ function renderCalendar() {
         if (dateStr === today) cls += ' today';
         if (dateStr < today) cls += ' past';
         if (booking) {
-            if (booking.start === booking.end) cls += ' booked-single';
-            else if (dateStr === booking.start) cls += ' booked-start';
-            else if (dateStr === booking.end) cls += ' booked-end';
-            else cls += ' booked-mid';
+            const c = booking.colorIndex === 1 ? '-alt' : '';
+            if (booking.start === booking.end) cls += ` booked-single${c}`;
+            else if (dateStr === booking.start) cls += ` booked-start${c}`;
+            else if (dateStr === booking.end) cls += ` booked-end${c}`;
+            else cls += ` booked-mid${c}`;
         }
         el.className = cls;
 
@@ -359,6 +361,17 @@ function renderCalendar() {
             lbl.textContent = booking.name;
             el.appendChild(lbl);
         }
+
+       el.addEventListener('click', () => {
+            if (booking) {
+                const today = toDateStr(new Date());
+                const isPast = booking.end < today;
+                activeTab = isPast ? 'past' : 'upcoming';
+                listYear = parseInt(booking.start.substring(0, 4));
+                renderBookingsList();
+                document.getElementById('bookings-card').scrollIntoView({ behavior: 'smooth' });
+            }
+        });
 
         /*el.addEventListener('click', () => {
             if (!booking && dateStr >= toDateStr(new Date())) {
