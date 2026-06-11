@@ -244,6 +244,11 @@ header p {
 
 /* ─── Bookings list ───────────────────────────────────────────────────────── */
 
+#bookings-list {
+    height: 400px;
+    overflow-y: auto;
+}
+
 .section-title {
   font-size: 15px;
   font-weight: 500;
