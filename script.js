@@ -56,7 +56,7 @@ document.getElementById('lock-input').addEventListener('keydown', e => {
 async function loadBookings() {
     const { data, error } = await sb.from('bookings').select('*').order('start');
     if (error) { console.error(error); return; }
-    bookings = data.map((b, i) => ({ ...b, colorIndex: i % 2 }));
+    bookings = data;
     renderCalendar();
     renderBookingsList();
 }
@@ -343,7 +343,7 @@ function renderCalendar() {
         if (dateStr === today) cls += ' today';
         if (dateStr < today) cls += ' past';
         if (booking) {
-            const c = booking.colorIndex === 1 ? '-alt' : '';
+            const c = getBookingColorIndex(booking) === 1 ? '-alt' : '';
             if (booking.start === booking.end) cls += ` booked-single${c}`;
             else if (dateStr === booking.start) cls += ` booked-start${c}`;
             else if (dateStr === booking.end) cls += ` booked-end${c}`;
@@ -386,6 +386,15 @@ function renderCalendar() {
 
         grid.appendChild(el);
     }
+}
+
+function getBookingColorIndex(booking) {
+    const monthStr = booking.start.substring(0, 7); // "2026-06"
+    const bookingsInMonth = bookings
+        .filter(b => b.start.substring(0, 7) === monthStr || b.end.substring(0, 7) === monthStr)
+        .sort((a, b) => a.start.localeCompare(b.start));
+    const idx = bookingsInMonth.findIndex(b => b.id === booking.id);
+    return idx % 2;
 }
 
 // ─── Bookings List ────────────────────────────────────────────────────────────
