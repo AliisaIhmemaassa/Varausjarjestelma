@@ -67,6 +67,21 @@ async function saveBooking(start, end, name) {
     return data[0];
 }
 
+async function debug() {
+    const name = document.getElementById('booked-for').value.trim();
+    const errEl = document.getElementById('form-error');
+    const start = '2026-02-24';
+    const end = '2026-02-28';
+
+    errEl.style.display = 'none';
+    console.log(start, end);
+    const saved = await saveBooking(start, end, name);
+    if (!saved) { errEl.textContent = 'Tallennus epäonnistui, yritä uudelleen.'; errEl.style.display='block'; return; }
+
+    mainPicker.clear();
+    document.getElementById('booked-for').value = '';
+}
+
 async function deleteBooking(id) {
     const { error } = await sb.from('bookings').delete().eq('id', id);
     if (error) { console.error(error); return; }
@@ -197,7 +212,7 @@ function createPicker(config) {
             const [y,m] = state.startVal.split('-').map(Number);
             state.pickerYear = y; state.pickerMonth = m-1;
         }
-        state.pickingStep = state.startVal ? 1 : 0;
+        state.pickingStep = (config.startAtStep1 || fromEnd) ? 1 : (state.startVal ? 1 : 0);
         dropdown.classList.add('open');
         render();
     }
@@ -262,7 +277,9 @@ function createPicker(config) {
             if (ds < state.startVal) {
                 state.startVal = ds; state.pickingStep = 1;
                 startInput.value = toDisplay(ds);
-                state.endVal = null; endInput.value = '';
+                if (!state.endVal || ds >= state.endVal) {
+                    state.endVal = null; endInput.value = ''; endInput.style.opacity = '0.6';
+                }
                 render(); return;
             }
             state.endVal = ds;
@@ -358,13 +375,59 @@ function renderCalendar() {
     }
 }
 
+// ─── Bookings List ────────────────────────────────────────────────────────────
+
+let activeTab = 'upcoming';
+let listYear = new Date().getFullYear();
+
+function switchTab(tab) {
+    activeTab = tab;
+    document.getElementById('tab-upcoming').classList.toggle('active', tab === 'upcoming');
+    document.getElementById('tab-past').classList.toggle('active', tab === 'past');
+    renderBookingsList();
+}
+
+function changeListYear(dir) {
+    const next = listYear + dir;
+    const thisyear = new Date().getFullYear();
+    if (next < thisyear) {
+        switchTab('past');
+    }
+    else if (next == thisyear && listYear < thisyear) {
+        switchTab('upcoming');
+    }
+    if (next >= (thisyear - 5) && next <= (thisyear + 5)) {
+        listYear = next;
+    }
+    renderBookingsList();
+}
+
 function renderBookingsList() {
     const card = document.getElementById('bookings-card');
     const list = document.getElementById('bookings-list');
+    document.getElementById('list-year').textContent = listYear;
+
+    const today = toDateStr(new Date());
+
+    const filtered = bookings
+        .filter(b => {
+            const inYear = b.start.startsWith(String(listYear)) || b.end.startsWith(String(listYear));
+            const upcoming = b.end >= today;
+            return inYear && (activeTab === 'upcoming' ? upcoming : !upcoming);
+        })
+        .sort((a,b) => activeTab === 'upcoming'
+            ? a.start.localeCompare(b.start)
+            : b.start.localeCompare(a.start)); // past sorted newest first
+
     if (bookings.length === 0) { card.style.display = 'none'; return; }
     card.style.display = 'block';
-    const sorted = [...bookings].sort((a,b) => a.start.localeCompare(b.start));
-    list.innerHTML = sorted.map(b => {
+
+    if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty-state">Ei varauksia.</div>';
+        return;
+    }
+
+    list.innerHTML = filtered.map(b => {
         const range = b.start === b.end ? formatDisplay(b.start) : formatDisplay(b.start) + ' – ' + formatDisplay(b.end);
         return `<div class="booking-item" data-booking="${JSON.stringify(b).replace(/"/g, '&quot;')}" onclick="openEditModal(this)" style="cursor:pointer;">
         <div>
@@ -466,10 +529,3 @@ async function saveEdit() {
     closeEditModal();
     await loadBookings();
 }
-
-// ─── Initial render ───────────────────────────────────────────────────────────
-
-const now = new Date();
-currentYear = now.getFullYear();
-currentMonth = now.getMonth();
-renderCalendar();

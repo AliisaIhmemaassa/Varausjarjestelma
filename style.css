@@ -359,6 +359,44 @@ header p {
   display: none;
 }
 
+/* ─── All bookings tabs ────────────────────────────────────────────────────── */
+
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1rem;
+}
+
+.tab {
+    flex: 1;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    border: 0.5px solid var(--border-strong);
+    background: none;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: background 0.1s;
+}
+
+.tab.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.tab-year {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+}
+
 /* ─── Date picker dropdown ────────────────────────────────────────────────── */
 
 .date-input-wrap { position: relative; }

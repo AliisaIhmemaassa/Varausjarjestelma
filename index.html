@@ -81,18 +81,27 @@
 
     <div class="form-group" style="margin-bottom:12px;">
       <label for="booked-for">Varattu nimellä</label>
-      <input type="text" class="plain-input" id="booked-for" placeholder="Nimi tai kuvaus…" maxlength="80">
+      <input type="text" class="plain-input" id="booked-for" placeholder="Nimi tai kuvaus…" maxlength="40">
     </div>
     <div id="form-error" class="error"></div>
-    <button class="submit-btn" onclick="submitBooking()">Lisää varaus</button>
+    <button class="submit-btn" onclick="debug()">Lisää varaus</button>
     <div id="result-msg" class="result-msg"></div>
-  </div> <!-- card end -->
+  </div> <!-- new booking card end -->
 
 
   <div class="card" id="bookings-card" style="display:none;">
-    <p class="section-title">Kaikki varaukset</p>
+    <div class="tabs">
+      <button class="tab active" id="tab-upcoming" onclick="switchTab('upcoming')">Tulevat</button>
+      <button class="tab" id="tab-past" onclick="switchTab('past')">Menneet</button>
+    </div>
+    <div class="tab-year">
+        <button class="nav-btn" onclick="changeListYear(-1)">&#8592;</button>
+        <span id="list-year"></span>
+        <button class="nav-btn" onclick="changeListYear(1)">&#8594;</button>
+    </div>
     <div id="bookings-list"></div>
-  </div>
+    <div id="bookings-list"></div>
+  </div> <!-- bookings card end -->
 
   <div id="confirm-modal" class="modal-overlay" style="display:none;">
     <div class="modal-box">
@@ -129,7 +138,7 @@
 
       <div class="form-group" style="margin-bottom:1.25rem; text-align:left; margin-top:12px;">
         <label for="edit-name">Varattu nimellä</label>
-        <input type="text" id="edit-name" class="plain-input" maxlength="80">
+        <input type="text" id="edit-name" class="plain-input" maxlength="40">
       </div>
       <div id="edit-error" class="error"></div>
       <div class="modal-buttons">
