@@ -80,6 +80,9 @@ function createPicker(config) {
 
     function open(fromEnd = false) {
         state.openedFromEnd = fromEnd;
+        startInput.classList.remove('picker-input-active');
+        endInput.classList.remove('picker-input-active');
+        (fromEnd ? endInput : startInput).classList.add('picker-input-active');
         state.pickerYear = new Date().getFullYear();
         state.pickerMonth = new Date().getMonth();
         if (fromEnd && state.endVal) {
@@ -94,13 +97,16 @@ function createPicker(config) {
         render();
     }
 
-    function close() { dropdown.classList.remove('open'); }
+    function close() { 
+        dropdown.classList.remove('open'); 
+        startInput.classList.remove('picker-input-active');
+        endInput.classList.remove('picker-input-active');
+    }
 
     function clear() {
         state.startVal = null; state.endVal = null; state.pickingStep = 0;
         startInput.value = '';
         endInput.value = '';
-        endInput.style.opacity = '0.6';
         render();
     }
 
@@ -135,6 +141,7 @@ function createPicker(config) {
                 else if (ds === state.endVal) cls += ' range-end';
                 else if (ds > state.startVal && ds < state.endVal) cls += ' in-range';
             } else if (state.startVal && ds === state.startVal) cls += ' selected';
+            else if (state.endVal && ds === state.endVal) cls += ' selected';
             el.className = cls;
             el.textContent = d;
             el.addEventListener('click', e => { e.stopPropagation(); dayClick(ds); });
@@ -146,22 +153,25 @@ function createPicker(config) {
         if (!config.allowPast && ds < toDateStr(new Date())) return;
 
         if (!state.openedFromEnd) {
-            // Clicking start input — always set start
-            state.startVal = ds;
-            state.endVal = null;
-            startInput.value = toDisplay(ds);
-            endInput.value = '';
-            endInput.style.opacity = '0.6';
+            if (state.endVal && ds > state.endVal) {
+                state.startVal = ds;
+                state.endVal = null;
+                startInput.value = toDisplay(ds);
+                endInput.value = '';
+                endInput.style.opacity = '1';
+            } else {
+                state.startVal = ds;
+                startInput.value = toDisplay(ds);
+            }
             state.pickingStep = 1;
             render();
         } else {
-            // Clicking end input — set end (or fix if before start)
             if (ds < state.startVal) {
-                state.startVal = ds;
-                startInput.value = toDisplay(ds);
-                state.endVal = null;
-                endInput.value = '';
-                endInput.style.opacity = '0.6';
+                state.startVal = null;
+                startInput.value = '';
+                state.endVal = ds;
+                endInput.value = toDisplay(ds);
+                startInput.style.opacity = '1';
                 render(); return;
             }
             state.endVal = ds;
