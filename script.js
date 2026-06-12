@@ -264,7 +264,7 @@ function renderBookingsList() {
 
     list.innerHTML = filtered.map(b => {
         const range = b.start === b.end ? formatDisplay(b.start) : formatDisplay(b.start) + ' – ' + formatDisplay(b.end);
-        return `<div class="booking-item" data-booking="${JSON.stringify(b).replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); scrollToBooking('${b.start}')" style="cursor:pointer;">
+        return `<div class="booking-item" data-booking="${JSON.stringify(b).replace(/"/g, '&quot;')}" onclick="if(!event.target.closest('.booking-actions')) scrollToBooking('${b.start}')" style="cursor:pointer;">
         <div>
             <div class="booking-name">${b.name}</div>
             <div class="booking-dates">${range}</div>
