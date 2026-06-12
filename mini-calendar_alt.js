@@ -8,7 +8,6 @@ function createPicker(config) {
         pickerMonth: new Date().getMonth(),
         startVal: null,
         endVal: null,
-        pickingStep: 0,
         openedFromEnd: false,
     };
 
@@ -92,7 +91,6 @@ function createPicker(config) {
             const [y,m] = state.startVal.split('-').map(Number);
             state.pickerYear = y; state.pickerMonth = m-1;
         }
-        state.pickingStep = (config.startAtStep1 || fromEnd) ? 1 : (state.startVal ? 1 : 0);
         dropdown.classList.add('open');
         render();
     }
@@ -104,7 +102,7 @@ function createPicker(config) {
     }
 
     function clear() {
-        state.startVal = null; state.endVal = null; state.pickingStep = 0;
+        state.startVal = null; state.endVal = null;
         startInput.value = '';
         endInput.value = '';
         render();
@@ -153,30 +151,36 @@ function createPicker(config) {
         if (!config.allowPast && ds < toDateStr(new Date())) return;
 
         if (!state.openedFromEnd) {
-            if (state.endVal && ds > state.endVal) {
+            if (state.startVal === ds && !state.endVal) {
+                state.endval = ds;
+                endInput.value = toDisplay(ds);
+            }
+            else if (state.endVal && ds > state.endVal) {
                 state.startVal = ds;
                 state.endVal = null;
                 startInput.value = toDisplay(ds);
                 endInput.value = '';
-                endInput.style.opacity = '1';
-            } else {
+            }
+            else {
                 state.startVal = ds;
                 startInput.value = toDisplay(ds);
             }
-            state.pickingStep = 1;
             render();
         } else {
-            if (ds < state.startVal) {
+            if (state.endVal === ds && !state.startVal) {
+                state.startval = ds;
+                startInput.value = toDisplay(ds);
+            }
+            else if (ds < state.startVal) {
                 state.startVal = null;
                 startInput.value = '';
                 state.endVal = ds;
                 endInput.value = toDisplay(ds);
-                startInput.style.opacity = '1';
-                render(); return;
             }
-            state.endVal = ds;
-            endInput.value = toDisplay(ds);
-            endInput.style.opacity = '1';
+            else {
+                state.endVal = ds;
+                endInput.value = toDisplay(ds);
+            }
             render();
         }
     }
@@ -185,7 +189,6 @@ function createPicker(config) {
         get endVal() { return state.endVal; },
         set startVal(v) { state.startVal = v; },
         set endVal(v) { state.endVal = v; },
-        set pickingStep(v) { state.pickingStep = v; },
         open, close, clear,
     };
 }
