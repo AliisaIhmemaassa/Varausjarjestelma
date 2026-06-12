@@ -168,7 +168,6 @@ header p {
     opacity: 0.5;
 }
 
-
 .nav-btn {
   background: none;
   border: 0.5px solid var(--border);
@@ -317,8 +316,28 @@ header p {
 
 .booking-item:last-child { margin-bottom: 0; }
 
+.booking-actions {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
 .booking-name  { font-size: 14px; font-weight: 500; color: var(--text); }
 .booking-dates { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+.edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-faint);
+  font-size: 18px;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  line-height: 1;
+  transition: color 0.1s, background 0.1s;
+}
+
+.edit-btn:hover { color: var(--accent); background: white; }
 
 .delete-btn {
   background: none;
