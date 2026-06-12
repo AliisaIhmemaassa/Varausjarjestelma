@@ -172,8 +172,8 @@ function renderCalendar() {
             if (booking) {
                 const today = toDateStr(new Date());
                 const isPast = booking.end < today;
-                activeTab = isPast ? 'past' : 'upcoming';
                 listYear = parseInt(booking.start.substring(0, 4));
+                switchTab(isPast ? 'past' : 'upcoming');
                 renderBookingsList();
                 document.getElementById('bookings-card').scrollIntoView({ behavior: 'smooth' });
             }
