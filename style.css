@@ -247,10 +247,10 @@ header p {
 .cal-day.booked-single { background: var(--accent); border-color: var(--accent); color: white; }
 .cal-day.booked-mid    { background: var(--accent-light); border-color: var(--accent-light); color: var(--accent-dark); border-radius: 0; }
 
-.cal-day.booked-start-alt { background: var(--accent2); border-color: var(--accent2); color: white; border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
-.cal-day.booked-end-alt { background: var(--accent2); border-color: var(--accent2); color: white; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
-.cal-day.booked-single-alt { background: var(--accent2); border-color: var(--accent2); color: white; }
-.cal-day.booked-mid-alt { background: var(--accent2-light); border-color: var(--accent2-light); color: var(--accent2-dark); }
+.cal-day.booked-start-alt   { background: var(--accent2); border-color: var(--accent2); color: white; border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.cal-day.booked-end-alt     { background: var(--accent2); border-color: var(--accent2); color: white; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.cal-day.booked-single-alt  { background: var(--accent2); border-color: var(--accent2); color: white; }
+.cal-day.booked-mid-alt     { background: var(--accent2-light); border-color: var(--accent2-light); color: var(--accent2-dark); border-radius: 0; }
 
 .cal-day.past,
 .picker-day.past {
