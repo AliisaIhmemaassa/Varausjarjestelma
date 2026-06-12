@@ -112,7 +112,7 @@ function createPicker(config) {
 
     function render() {
         monthLabel.textContent = MONTHS[state.pickerMonth] + ' ' + state.pickerYear;
-        hint.textContent = state.pickingStep === 0 ? 'Paina aloitus päivää' : 'Paina lopetus päivää';
+        hint.textContent = state.openedFromEnd ? 'Valitse lopetuspäivä' : 'Valitse aloituspäivä';
 
         const labels = grid.querySelectorAll('.picker-day-label');
         grid.innerHTML = '';
