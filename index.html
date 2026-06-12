@@ -41,11 +41,12 @@
   <div class="card">
     <div class="cal-header">
       <button class="nav-btn" onclick="changeMonth(-1)">&#8592;</button>
-      <h2 id="month-label"></h2>
+      <div class="cal-label-wrap">
+        <h2 id="month-label"></h2>
+        <button class="nav-btn" onclick="goToToday()">Tänään</button>
+      </div>
       <button class="nav-btn" onclick="changeMonth(1)">&#8594;</button>
     </div>
-
-    <div class="cal-header"><button class="nav-btn" onclick="goToToday()">Tänään</button></div>
 
     <div class="day-labels">
       <div class="day-label">Ma</div><div class="day-label">Ti</div><div class="day-label">Ke</div>
@@ -87,7 +88,7 @@
       <input type="text" class="plain-input" id="booked-for" placeholder="Nimi tai kuvaus…" maxlength="40">
     </div>
     <div id="form-error" class="error"></div>
-    <button class="submit-btn" onclick="debug()">Lisää varaus</button>
+    <button class="submit-btn" onclick="submitBooking()">Lisää varaus</button>
     <div id="result-msg" class="result-msg"></div>
   </div> <!-- new booking card end -->
 

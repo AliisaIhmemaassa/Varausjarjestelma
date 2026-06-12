@@ -67,7 +67,7 @@ async function saveBooking(start, end, name) {
     return data[0];
 }
 
-async function debug() {
+/*async function debug() {
     const name = document.getElementById('booked-for').value.trim();
     const errEl = document.getElementById('form-error');
     const start = '2026-02-22';
@@ -80,7 +80,7 @@ async function debug() {
 
     mainPicker.clear();
     document.getElementById('booked-for').value = '';
-}
+}*/
 
 async function deleteBooking(id) {
     const { error } = await sb.from('bookings').delete().eq('id', id);

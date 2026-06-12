@@ -162,6 +162,18 @@ header p {
   font-weight: 500;
 }
 
+.cal-label-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 140px;
+}
+
+.cal-label-wrap button {
+  width: 80px;
+  text-align: center;
+}
+
 .cal-icon {
     width: 16px;
     height: 16px;
