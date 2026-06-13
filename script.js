@@ -4,9 +4,13 @@ const sb = createClient(
   'sb_publishable_S1GeZ_PbIfPMQCYmYU35tg_rJ4Kusv6'
 );
 
+let realtimeChannel = null;
+
+
 const MONTHS = ['Tammikuu', 'Helmikuu', 'Maaliskuu', 'Huhtikuu', 'Toukokuu', 'Kesäkuu', 'Heinäkuu', 'Elokuu', 'Syyskuu', 'Lokakuu', 'Marraskuu', 'Joulukuu'];
 let currentYear, currentMonth;
 let bookings = [];
+
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
@@ -22,6 +26,7 @@ async function unlock() {
         document.getElementById('lock-input').focus();
     } else {
         showApp();
+        subscribeRealtime();
     }
 }
 
@@ -32,6 +37,7 @@ async function logout() {
     document.getElementById('start-display').value = '';
     document.getElementById('end-display').value = '';
     document.getElementById('booked-for').value = '';
+    unsubscribeRealtime();
 }
 
 function showApp() {
@@ -45,11 +51,29 @@ function showApp() {
 
 sb.auth.getSession().then(({ data: { session } }) => {
     if (session) showApp();
+    subscribeRealtime();
 });
 
 document.getElementById('lock-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') unlock();
 });
+
+function subscribeRealtime() {
+    if (realtimeChannel) sb.removeChannel(realtimeChannel);
+    realtimeChannel = sb.channel('bookings')
+        .on('postgres_changes',
+            { event: '*', schema: 'public', table: 'bookings' },
+            () => { loadBookings(); }
+        )
+        .subscribe();
+}
+
+function unsubscribeRealtime() {
+    if (realtimeChannel) {
+        sb.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+    }
+}
 
 // ─── Supabase data ────────────────────────────────────────────────────────────
 
@@ -85,7 +109,7 @@ async function saveBooking(start, end, name) {
 async function deleteBooking(id) {
     const { error } = await sb.from('bookings').delete().eq('id', id);
     if (error) { console.error(error); return; }
-    await loadBookings();
+    //await loadBookings();
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -309,7 +333,7 @@ async function submitBooking() {
     document.getElementById('booked-for').value = '';
     currentYear = parseDate(start).getFullYear();
     currentMonth = parseDate(start).getMonth();
-    await loadBookings();
+    //await loadBookings();
 }
 
 // ─── Delete Modal ─────────────────────────────────────────────────────────────
@@ -372,5 +396,5 @@ async function saveEdit() {
     if (error) { errEl.textContent = 'Tallennus epäonnistui.'; errEl.style.display='block'; return; }
 
     closeEditModal();
-    await loadBookings();
+    //await loadBookings();
 }

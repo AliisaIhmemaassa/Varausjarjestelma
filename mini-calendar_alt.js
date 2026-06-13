@@ -152,7 +152,7 @@ function createPicker(config) {
 
         if (!state.openedFromEnd) {
             if (state.startVal === ds && !state.endVal) {
-                state.endval = ds;
+                state.endVal = ds;
                 endInput.value = toDisplay(ds);
             }
             else if (state.endVal && ds > state.endVal) {
@@ -168,7 +168,7 @@ function createPicker(config) {
             render();
         } else {
             if (state.endVal === ds && !state.startVal) {
-                state.startval = ds;
+                state.startVal = ds;
                 startInput.value = toDisplay(ds);
             }
             else if (ds < state.startVal) {
