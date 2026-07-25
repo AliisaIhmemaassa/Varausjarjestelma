@@ -245,7 +245,10 @@ function goToToday() {
     const now = new Date();
     currentYear = now.getFullYear();
     currentMonth = now.getMonth();
+    listYear = now.getFullYear();
+    switchTab('upcoming');
     renderCalendar();
+    renderBookingsList();
 }
 
 function getBookingColorIndex(booking) {
