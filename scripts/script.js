@@ -138,18 +138,27 @@ function toStr(y,m,d) {
 
 function changeMonth(dir) {
     const newMonth = currentMonth + dir;
-    if (newMonth > 11 && currentYear <= (new Date().getFullYear() + 5)) { currentMonth = 0; currentYear++; }
-    else if (newMonth < 0 && currentYear >= (new Date().getFullYear() - 5)) { currentMonth = 11; currentYear--; }
-    else if (currentYear >= (new Date().getFullYear() - 5) && currentYear <= (new Date().getFullYear() + 5)) { currentMonth += dir; }
+    const maxYear = new Date().getFullYear() + 5;
+    const minYear = new Date().getFullYear() - 5;
+    if (newMonth > 11 && currentYear === maxYear) { return; }
+    else if (newMonth < 0 && currentYear === minYear) { return; }
+
+    if (newMonth > 11 && currentYear <= maxYear) { currentMonth = 0; currentYear++; }
+    else if (newMonth < 0 && currentYear >= minYear) { currentMonth = 11; currentYear--; }
+    else if (currentYear >= minYear && currentYear <= maxYear) { currentMonth += dir; }
     renderCalendar();
 }
 
 function changeYear(dir) {
     const newYear = currentYear + dir;
-    if (newYear >= (new Date().getFullYear() - 5) && newYear <= (new Date().getFullYear() + 5)) {
+    const maxYear = new Date().getFullYear() + 5;
+    const minYear = new Date().getFullYear() - 5;
+    if (newYear >= minYear && newYear <= maxYear) {
         currentYear = newYear;
-        renderCalendar();
     }
+    else if (newYear < minYear) { currentMonth = 0; }
+    else if (newYear > maxYear) { currentMonth = 11; }
+    renderCalendar();
 }
 
 function getBookingForDate(dateStr) {
