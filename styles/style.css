@@ -181,7 +181,8 @@ header p {
 }
 
 .nav-btn, 
-.today-btn {
+.today-btn,
+.year-nav {
   background: none;
   border: 0.5px solid var(--border);
   border-radius: var(--radius-sm);
@@ -672,4 +673,5 @@ header p {
   .form-row    { grid-template-columns: 1fr; }
   .cal-day     { min-height: 40px; font-size: 12px; }
   .booked-label { font-size: 9px; }
+  .year-nav { font-size: 9px; }
 }
