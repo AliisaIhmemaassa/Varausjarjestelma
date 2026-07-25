@@ -247,6 +247,7 @@ function goToToday() {
     currentMonth = now.getMonth();
     listYear = now.getFullYear();
     switchTab('upcoming');
+    
     renderCalendar();
     renderBookingsList();
 }
