@@ -144,6 +144,14 @@ function changeMonth(dir) {
     renderCalendar();
 }
 
+function changeYear(dir) {
+    const newYear = currentYear + dir;
+    if (newYear >= (new Date().getFullYear() - 5) && newYear <= (new Date().getFullYear() + 5)) {
+        currentYear = newYear;
+        renderCalendar();
+    }
+}
+
 function getBookingForDate(dateStr) {
     return bookings.find(b => dateStr >= b.start && dateStr <= b.end);
 }
@@ -152,6 +160,8 @@ function getBookingForDate(dateStr) {
 
 function renderCalendar() {
     document.getElementById('month-label').textContent = MONTHS[currentMonth] + ' ' + currentYear;
+    document.getElementById('cal-y-sub').innerHTML = '&#8592; ' + (currentYear - 1);
+    document.getElementById('cal-y-add').innerHTML = (currentYear + 1) + ' &#8594;';
     const grid = document.getElementById('cal-grid');
     grid.innerHTML = '';
     const today = toDateStr(new Date());

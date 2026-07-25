@@ -25,7 +25,7 @@
 }
 [data-theme="dark"] {
   --bg:           #1a1c1b;   /* warm dark, echoes the greenish tint */
-  --surface:      #222725;   /* slightly lighter than bg */
+  --surface:      #2b2e2c;  /* slightly lighter than bg */
   --border:       rgba(255, 255, 255, 0.08);
   --text:         #e8e6e1;   /* warm off-white, mirrors --bg warmth */
   --text-muted:   #8f9490;
@@ -169,7 +169,7 @@ header p {
     min-width: 140px;
 }
 
-.cal-label-wrap button {
+.today-btn {
   width: 80px;
   text-align: center;
 }
@@ -180,7 +180,8 @@ header p {
     opacity: 0.5;
 }
 
-.nav-btn {
+.nav-btn, 
+.today-btn {
   background: none;
   border: 0.5px solid var(--border);
   border-radius: var(--radius-sm);
