@@ -11,6 +11,8 @@ const MONTHS = ['Tammikuu', 'Helmikuu', 'Maaliskuu', 'Huhtikuu', 'Toukokuu', 'Ke
 let currentYear, currentMonth;
 let bookings = [];
 
+const borderYear = 10;
+
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
@@ -138,10 +140,11 @@ function toStr(y,m,d) {
 
 function changeMonth(dir) {
     const newMonth = currentMonth + dir;
-    const maxYear = new Date().getFullYear() + 5;
-    const minYear = new Date().getFullYear() - 5;
-    if (newMonth > 11 && currentYear === maxYear) { return; }
-    else if (newMonth < 0 && currentYear === minYear) { return; }
+    const maxYear = new Date().getFullYear() + borderYear;
+    const minYear = new Date().getFullYear() - borderYear;
+    const borderMonth = new Date().getMonth();
+    if (newMonth > borderMonth && currentYear === maxYear) { return; }
+    else if (newMonth < borderMonth && currentYear === minYear) { return; }
 
     if (newMonth > 11 && currentYear <= maxYear) { currentMonth = 0; currentYear++; }
     else if (newMonth < 0 && currentYear >= minYear) { currentMonth = 11; currentYear--; }
@@ -151,13 +154,14 @@ function changeMonth(dir) {
 
 function changeYear(dir) {
     const newYear = currentYear + dir;
-    const maxYear = new Date().getFullYear() + 5;
-    const minYear = new Date().getFullYear() - 5;
+    const maxYear = new Date().getFullYear() + borderYear;
+    const minYear = new Date().getFullYear() - borderYear;
+    const borderMonth = new Date().getMonth();
     if (newYear >= minYear && newYear <= maxYear) {
         currentYear = newYear;
     }
-    else if (newYear < minYear) { currentMonth = 0; }
-    else if (newYear > maxYear) { currentMonth = 11; }
+    else if (newYear < minYear) { currentMonth = borderMonth; }
+    else if (newYear > maxYear) { currentMonth = borderMonth; }
     renderCalendar();
 }
 
@@ -274,7 +278,7 @@ function changeListYear(dir) {
     else if (next == thisyear && listYear < thisyear) {
         switchTab('upcoming');
     }
-    if (next >= (thisyear - 5) && next <= (thisyear + 5)) {
+    if (next >= (thisyear - borderYear) && next <= (thisyear + borderYear)) {
         listYear = next;
     }
     renderBookingsList();
