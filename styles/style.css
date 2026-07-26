@@ -154,7 +154,7 @@ header p {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 30px;
   margin-bottom: 1.25rem;
 }
 
