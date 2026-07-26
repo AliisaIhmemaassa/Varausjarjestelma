@@ -169,7 +169,25 @@ header p {
     min-width: 140px;
 }
 
+.year-nav-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(4px, 1.5vw, 12px);
+  width: 100%;
+}
+
+.year-nav-wrap button {
+  flex: 1 1 0;
+  min-width: 0;
+  white-space: nowrap;
+  font-size: clamp(0.7rem, 2.2vw, 1rem);
+  padding: 6px clamp(8px, 2vw, 16px);
+  box-sizing: border-box;
+}
+
 .today-btn {
+  flex: 0 1 auto;
   max-width: 80px;
   min-width: 60px;
   text-align: center;
@@ -674,6 +692,4 @@ header p {
   .form-row    { grid-template-columns: 1fr; }
   .cal-day     { min-height: 40px; font-size: 12px; }
   .booked-label { font-size: 9px; }
-  .year-nav { font-size: 9px; padding: 4px 10px; }
-  .today-btn { font-size: 12px; padding: 4px 10px; }
 }
