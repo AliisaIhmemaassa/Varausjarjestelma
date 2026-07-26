@@ -673,5 +673,5 @@ header p {
   .form-row    { grid-template-columns: 1fr; }
   .cal-day     { min-height: 40px; font-size: 12px; }
   .booked-label { font-size: 9px; }
-  .year-nav { font-size: 9px; padding: 4px 8px; }
+  .year-nav { font-size: 9px; }
 }
