@@ -154,46 +154,25 @@ header p {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 30px;
   margin-bottom: 1.25rem;
 }
 
 .cal-header h2 {
-  font-size: clamp(13px, 4.5cqw, 17px);
+  font-size: 17px;
   font-weight: 500;
-  white-space: nowrap;
-  margin: 0;
 }
 
 .cal-label-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  min-width: 0; /* lets it shrink below content size instead of forcing siblings to wrap */
-}
-
-.cal-label-wrap > div {
-  display: flex;
-  align-items: center;
-  gap: clamp(2px, 1cqw, 6px);
-}
-
-.today-btn,
-.year-nav {
-  white-space: nowrap;
-  flex-shrink: 0; /* buttons themselves don't squish, only their font/padding scale */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 140px;
 }
 
 .today-btn {
-  font-size: clamp(11px, 3cqw, 14px);
-  padding: clamp(4px, 1.5cqw, 6px) clamp(8px, 3cqw, 14px);
-  width: auto; /* remove the old fixed 80px */
-}
-
-.year-nav {
-  font-size: clamp(7px, 2cqw, 9px);
-  padding: clamp(3px, 1cqw, 5px) clamp(5px, 2cqw, 8px);
+  max-width: 80px;
+  min-width: 60px;
+  text-align: center;
 }
 
 .cal-icon {
@@ -695,4 +674,6 @@ header p {
   .form-row    { grid-template-columns: 1fr; }
   .cal-day     { min-height: 40px; font-size: 12px; }
   .booked-label { font-size: 9px; }
+  .year-nav { font-size: 9px; padding: 4px 10px; }
+  .today-btn { font-size: 12px; padding: 4px 10px; }
 }
