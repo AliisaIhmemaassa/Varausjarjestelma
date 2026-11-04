@@ -17,7 +17,10 @@ const borderYear = 10;
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 async function unlock() {
-    const email = 'daniel.brown23103@gmail.com';
+    const email = process.env.E_MAIL;
+    if (!email) {
+        throw new Error("E_MAIL is not set");
+    }
     const password = document.getElementById('lock-input').value;
     const errEl = document.getElementById('lock-error');
     const { error } = await sb.auth.signInWithPassword({ email, password });
